@@ -30,7 +30,7 @@ The repository follows a layered layout so that every production concern has a d
 
 Each step is documented in more detail inside the `docs/` directory:
 
-- [Architecture & runtime orchestration](src/rc/docs/architecture.md)
+- [Architecture & runtime orchestration](src/docs/architecture.md)
 - [Signal processing & trade lifecycle](src/docs/trade-lifecycle.md)
 - [Background maintenance & safeguards](src/docs/background-jobs.md)
 - [Configuration, data stores, and logging](src/docs/operations.md)
