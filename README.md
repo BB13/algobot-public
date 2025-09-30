@@ -18,7 +18,7 @@ The repository follows a layered layout so that every production concern has a d
 | API surface | REST routes for webhooks and runtime settings management. | [`src/api/`](src/api) |
 | Background tasks | Continuous maintenance, safety sweeps, and orderly shutdown helpers. | [`src/tasks/`](src/tasks) |
 | Operator interfaces | Telegram bot, HTML settings console, chart capture utilities. | [`src/telegram/`](src/telegram), [`src/frontend/`](src/frontend) |
-| Documentation | Deep-dive guides linked below. | [`docs/`](docs) |
+| Documentation | Deep-dive guides linked below. | [`src/docs/`](docs) |
 
 ## System walkthrough
 
