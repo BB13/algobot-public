@@ -7,7 +7,7 @@ The trading engine relies on long-running tasks to keep ledger files healthy, en
 
 | Task group | Description | Source |
 | --- | --- | --- |
-| Maintenance tasks | Periodically reload positions, reconcile open/closed ledgers, and execute file repair utilities. | [`src/tasks/maintenance_tasks.py`](../src/tasks/maintenance_tasks.py) |
+| Maintenance tasks | Periodically reload positions, reconcile open/closed ledgers, and execute file repair utilities. | [`src/tasks/maintenance_tasks.py`](../tasks/maintenance_tasks.py) |
 | Safety tasks | Iterate active positions to enforce stop-loss thresholds, maximum trade durations, and leverage sanity checks. | [`src/tasks/safety_tasks.py`](../src/tasks/safety_tasks.py) |
 | Shutdown tasks | Optional hook to close all open positions and flush caches during graceful shutdown. | [`src/tasks/shutdown_tasks.py`](../src/tasks/shutdown_tasks.py) |
 | Race fix utility | Standalone coroutine invoked at startup to deduplicate ledger entries. | [`src/tasks/fix_position_race.py`](../src/tasks/fix_position_race.py) |
