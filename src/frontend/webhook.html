@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}AlgoBot Webhook Generator{% endblock %}
+
+{% block extra_head %}
+    {# Add base tag if needed specifically here, or manage URLs server-side #}
+    {# <base href="https://algobotwebhooks.ai"> #}
+{% endblock %}
+
+{% block content %}
+<div class="webhook-container">
+    <h1 class="text-center">AlgoBot Webhook Generator</h1>
+    <div class="row">
+        <div class="col-lg-8"> {# Main content area #}
+            <div class="card mb-4">
+                <div class="card-header">Webhook Parameters</div>
+                <div class="card-body">
+                    <div class="row g-3"> {# Use Bootstrap grid with gutters #}
+                        <div class="col-md-4">
+                            <label for="bot" class="form-label">Bot:</label>
+                            <input type="text" class="form-control" id="bot" value="Scalp">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="botSettingsLetter" class="form-label">Bot Settings:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="botSettingsLetter" maxlength="1" value="A" placeholder="Ltr">
+                                <input type="number" class="form-control" id="botSettingsNumber" value="1" min="0" max="9" placeholder="Num">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="interval" class="form-label">Interval:</label>
+                            <input type="number" class="form-control" id="interval" value="15">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="asset" class="form-label">Asset:</label>
+                             <div class="input-group">
+                                <input type="text" class="form-control" id="asset" value="LINK" placeholder="e.g., BTC or LINK">
+                                <span class="input-group-text">USDT</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="command" class="form-label">Command:</label>
+                            <select class="form-select" id="command">
+                                <option value="LONG">LONG</option>
+                                <option value="TP 1">TP 1</option>
+                                <option value="TP 2">TP 2</option>
+                                <option value="TP 3">TP 3</option>
+                                <option value="TP 4">TP 4</option>
+                                <option value="STOP L">STOP L</option>
+                                <option value="SHORT">SHORT</option>
+                                <option value="TPS 1">TPS 1</option>
+                                <option value="TPS 2">TPS 2</option>
+                                <option value="TPS 3">TPS 3</option>
+                                <option value="TPS 4">TPS 4</option>
+                                <option value="STOP S">STOP S</option>
+                            </select>
+                        </div>
+                         <div class="col-md-4">
+                            <label for="maxTP" class="form-label">Max TP:</label>
+                            <input type="number" class="form-control" id="maxTP" value="3">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="amt" class="form-label">Amount (Optional):</label>
+                            <input type="text" class="form-control" id="amt" value="" placeholder="e.g. 1000">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="securityKey" class="form-label">Security Key:</label>
+                            <input type="text" class="form-control" id="securityKey" placeholder="Enter security key">
+                        </div>
+                         <div class="col-md-4">
+                            <label for="altTP" class="form-label">Alt TP (Optional):</label>
+                            <input type="text" class="form-control" id="altTP" value="" placeholder="e.g. 1.5">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card output-section">
+                 <div class="card-header">Generated Outputs</div>
+                 <div class="card-body">
+                    {# Title Section #}
+                    <div class="mb-3">
+                        <label class="form-label d-block">Alert Title:</label> {# Use d-block for full width #}
+                        <div class="d-flex align-items-center"> {# Flex container for output + button #}
+                            <div class="output-display flex-grow-1 me-2" id="title"></div> {# Output takes available space #}
+                            <button class="btn btn-secondary btn-sm btn-copy flex-shrink-0" onclick="copyOutput(this, 'title')">Copy Title</button> {# Button doesn't shrink #}
+                        </div>
+                    </div>
+
+                    {# Message Body Section #}
+                    <div class="mb-3">
+                        <label class="form-label d-block">Webhook Message Body (for TradingView Alert):</label>
+                         <div class="d-flex align-items-center">
+                            <div class="output-display flex-grow-1 me-2" id="generated-string"></div>
+                            <button class="btn btn-secondary btn-sm btn-copy flex-shrink-0" onclick="copyOutput(this, 'generated-string')">Copy Message</button>
+                         </div>
+                    </div>
+
+                    {# cURL Section #}
+                    <div class="mb-3">
+                        <label class="form-label d-block">Example cURL Command:</label>
+                        <div class="d-flex align-items-center">
+                            <div class="output-display flex-grow-1 me-2" id="curl-command"></div>
+                            <button class="btn btn-secondary btn-sm btn-copy flex-shrink-0" onclick="copyOutput(this, 'curl-command')">Copy cURL</button>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4"> {# Side panel area #}
+            <div class="card side-panel">
+                 <div class="card-header">Quick Commands</div>
+                 <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {# Simplified list using Bootstrap list-group #}
+                        <li class="list-group-item">LONG <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'LONG')">Copy</button></li>
+                        <li class="list-group-item">TP 1 <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'TP 1')">Copy</button></li>
+                        <li class="list-group-item">TP 2 <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'TP 2')">Copy</button></li>
+                        <li class="list-group-item">TP 3 <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'TP 3')">Copy</button></li>
+                        <li class="list-group-item">TP 4 <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'TP 4')">Copy</button></li>
+                        <li class="list-group-item">STOP L <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'STOP L')">Copy</button></li>
+                        <li class="list-group-item">SHORT <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'SHORT')">Copy</button></li>
+                        <li class="list-group-item">TPS 1 <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'TPS 1')">Copy</button></li>
+                        <li class="list-group-item">TPS 2 <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'TPS 2')">Copy</button></li>
+                        <li class="list-group-item">TPS 3 <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'TPS 3')">Copy</button></li>
+                        <li class="list-group-item">TPS 4 <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'TPS 4')">Copy</button></li>
+                        <li class="list-group-item">STOP S <button class="btn btn-outline-primary btn-sm btn-copy-command" onclick="copyCommand(this, 'STOP S')">Copy</button></li>
+                    </ul>
+                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+{% raw %}
+    function generateString() {
+        const command = document.getElementById('command').value;
+        const assetBase = document.getElementById('asset').value.toUpperCase();
+        const asset = assetBase + (assetBase.endsWith('USDT') ? '' : 'USDT'); // Auto-append USDT if not present
+        const interval = document.getElementById('interval').value;
+        const bot = document.getElementById('bot').value;
+        const botSettingsLetter = document.getElementById('botSettingsLetter').value;
+        const botSettingsNumber = document.getElementById('botSettingsNumber').value;
+        const botSettings = botSettingsLetter + botSettingsNumber;
+        const amt = document.getElementById('amt').value;
+        const altTP = document.getElementById('altTP').value;
+        const maxTP = document.getElementById('maxTP').value;
+        const securityKey = document.getElementById('securityKey').value;
+
+        // Generate Title
+        const title = `${bot} ${botSettings} ${interval} ${asset}`;
+        document.getElementById('title').textContent = title;
+
+        // Generate Webhook Message Body
+        let generatedString = `command={{strategy.order.alert_message}},asset={{ticker}},interval={{interval}},bot=${bot},botSettings=${botSettings},maxTP=${maxTP}`;
+        if (amt) generatedString += `,amt=${amt}`;
+        if (altTP) generatedString += `,altTP=${altTP}`;
+        if (securityKey) generatedString += `,security_key=${securityKey}`; // Only add if key exists
+        else generatedString += `,security_key=YOUR_KEY_HERE`; // Placeholder if empty
+        document.getElementById('generated-string').textContent = generatedString;
+
+        // Generate Example cURL
+        // Replace with your actual webhook URL
+        const webhookUrl = 'https://aa73-121-98-85-62.ngrok-free.app/api/webhook';
+        let actualString = `command=${command},asset=${asset},interval=${interval},bot=${bot},botSettings=${botSettings},maxTP=${maxTP}`;
+        if (amt) actualString += `,amt=${amt}`;
+        if (altTP) actualString += `,altTP=${altTP}`;
+        if (securityKey) actualString += `,security_key=${securityKey}`;
+        else actualString += `,security_key=YOUR_KEY_HERE`; // Placeholder if empty
+
+        // Basic escaping for the curl command data - might need more robust escaping depending on possible characters
+        const escapedActualString = actualString.replace(/"/g, '\"');
+
+        const curlCommand = `curl -X POST ${webhookUrl} -H "Content-Type: text/plain" -d "${escapedActualString}"`;
+        document.getElementById('curl-command').textContent = curlCommand;
+    }
+
+    function copyToClipboard(text, button) {
+        navigator.clipboard.writeText(text).then(() => {
+             const originalText = button.textContent;
+             button.textContent = 'Copied!';
+             button.classList.add('copied');
+             setTimeout(() => {
+                 button.textContent = originalText;
+                 button.classList.remove('copied');
+             }, 1000); // Revert after 1 second
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            // Optionally provide feedback to the user that copy failed
+             const originalText = button.textContent;
+             button.textContent = 'Failed!';
+             setTimeout(() => {
+                 button.textContent = originalText;
+             }, 1000);
+        });
+    }
+
+     function copyCommand(button, command) {
+        copyToClipboard(command, button);
+        // Optionally update the main command dropdown
+        // document.getElementById('command').value = command;
+        // generateString(); // Regenerate if command changes
+    }
+
+    function copyOutput(button, elementId) {
+        const text = document.getElementById(elementId).textContent;
+        copyToClipboard(text, button);
+    }
+
+
+    // Add event listeners to all relevant inputs and selects
+    const inputs = document.querySelectorAll('#bot, #botSettingsLetter, #botSettingsNumber, #interval, #asset, #command, #maxTP, #amt, #securityKey, #altTP');
+    inputs.forEach(input => {
+        input.addEventListener('input', generateString); // Regenerate on any input change
+    });
+
+    // Generate initial string on page load
+    document.addEventListener('DOMContentLoaded', generateString);
+{% endraw %}
+</script>
+{% endblock %}

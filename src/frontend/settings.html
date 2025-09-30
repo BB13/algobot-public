@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}AlgoBot Settings{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <h1>AlgoBot Settings</h1>
+
+    {% if message %}
+    <div class="flash-message flash-{{ message_type }} alert {% if message_type == 'success' %}alert-success{% elif message_type == 'error' %}alert-danger{% endif %}" role="alert">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header">
+           Exchange Adapter Settings
+        </div>
+        <div class="card-body">
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="adapters.default">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="default_adapter">Default Adapter</label>
+                        <p class="info-text">Default adapter when not specified</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="text" class="form-control" id="default_adapter" name="value" value="{{ settings.adapters.default if settings.adapters and settings.adapters.default else 'binance_spot' }}">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+
+            <form method="POST" action="/algobot-hub/update">
+                 <input type="hidden" name="path" value="adapters.binance_spot.enabled">
+                 <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="binance_enabled">Enable Binance Spot</label>
+                    </div>
+                    <div class="setting-control">
+                        <div class="form-check form-switch">
+                             <input class="form-check-input" type="checkbox" role="switch" id="binance_enabled" name="value" value="true" {% if settings.adapters and settings.adapters.binance_spot and settings.adapters.binance_spot.enabled %}checked{% endif %}>
+                             <label class="form-check-label" for="binance_enabled"></label>
+                        </div>
+                        <button type="submit" class="btn btn-primary ms-auto">Update</button>
+                    </div>
+                 </div>
+            </form>
+
+             <form method="POST" action="/algobot-hub/update">
+                 <input type="hidden" name="path" value="adapters.binance_spot.testnet">
+                 <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="binance_testnet">Testnet Mode</label>
+                         <p class="info-text">Use testnet (no real funds)</p>
+                    </div>
+                    <div class="setting-control">
+                       <div class="form-check form-switch">
+                             <input class="form-check-input" type="checkbox" role="switch" id="binance_testnet" name="value" value="true" {% if settings.adapters and settings.adapters.binance_spot and settings.adapters.binance_spot.testnet %}checked{% endif %}>
+                             <label class="form-check-label" for="binance_testnet"></label>
+                        </div>
+                       <button type="submit" class="btn btn-primary ms-auto">Update</button>
+                    </div>
+                 </div>
+             </form>
+
+             {# --- Add Use Margin for Longs --- #}
+             <form method="POST" action="/algobot-hub/update">
+                 <input type="hidden" name="path" value="adapters.binance_spot.use_margin_for_longs">
+                 <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="use_margin_longs">Use Margin for Longs</label>
+                         <p class="info-text">Enable margin borrowing for long trades (Spot only)</p>
+                    </div>
+                    <div class="setting-control">
+                       <div class="form-check form-switch">
+                             <input class="form-check-input" type="checkbox" role="switch" id="use_margin_longs" name="value" value="true" {% if settings.adapters and settings.adapters.binance_spot and settings.adapters.binance_spot.use_margin_for_longs %}checked{% endif %}>
+                             <label class="form-check-label" for="use_margin_longs"></label>
+                        </div>
+                       <button type="submit" class="btn btn-primary ms-auto">Update</button>
+                    </div>
+                 </div>
+             </form>
+
+             {# --- Add Default Leverage --- #}
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="adapters.binance_spot.default_leverage">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="default_leverage">Default Leverage</label>
+                        <p class="info-text">Target leverage for margin calculations</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="number" class="form-control" id="default_leverage" name="value" value="{{ settings.adapters.binance_spot.default_leverage if settings.adapters and settings.adapters.binance_spot and settings.adapters.binance_spot.default_leverage else 3 }}" step="1">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+
+             {# --- Add Max Leverage --- #}
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="adapters.binance_spot.max_leverage">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="max_leverage">Max Leverage</label>
+                        <p class="info-text">Maximum leverage safeguard</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="number" class="form-control" id="max_leverage" name="value" value="{{ settings.adapters.binance_spot.max_leverage if settings.adapters and settings.adapters.binance_spot and settings.adapters.binance_spot.max_leverage else 10 }}" step="1" max="10">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+
+             {# --- Add Margin Type --- #}
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="adapters.binance_spot.margin_type">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="margin_type">Margin Type</label>
+                    </div>
+                    <div class="setting-control">
+                       <select class="form-select" id="margin_type" name="value">
+                            <option value="CROSSED" {% if settings.adapters and settings.adapters.binance_spot and settings.adapters.binance_spot.margin_type == 'CROSSED' %}selected{% endif %}>CROSSED</option>
+                            <option value="ISOLATED" {% if settings.adapters and settings.adapters.binance_spot and settings.adapters.binance_spot.margin_type == 'ISOLATED' %}selected{% endif %}>ISOLATED</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Trading Direction Controls (Binance Spot)
+        </div>
+        <div class="card-body">
+            <form method="POST" action="/algobot-hub/update">
+                 <input type="hidden" name="path" value="adapters.binance_spot.directions.allow_long">
+                 <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="allow_long">Allow Long Trades</label>
+                    </div>
+                    <div class="setting-control">
+                         <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="allow_long" name="value" value="true" {% if settings.adapters and settings.adapters.binance_spot and settings.adapters.binance_spot.directions and settings.adapters.binance_spot.directions.allow_long %}checked{% endif %}>
+                            <label class="form-check-label" for="allow_long"></label>
+                        </div>
+                        <button type="submit" class="btn btn-primary ms-auto">Update</button>
+                    </div>
+                 </div>
+             </form>
+             <form method="POST" action="/algobot-hub/update">
+                 <input type="hidden" name="path" value="adapters.binance_spot.directions.allow_short">
+                 <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="allow_short">Allow Short Trades</label>
+                         <p class="info-text">Allow shorting of the asset</p>
+                    </div>
+                    <div class="setting-control">
+                        <div class="form-check form-switch">
+                           <input class="form-check-input" type="checkbox" role="switch" id="allow_short" name="value" value="true" {% if settings.adapters and settings.adapters.binance_spot and settings.adapters.binance_spot.directions and settings.adapters.binance_spot.directions.allow_short %}checked{% endif %}>
+                           <label class="form-check-label" for="allow_short"></label>
+                       </div>
+                        <button type="submit" class="btn btn-primary ms-auto">Update</button>
+                    </div>
+                 </div>
+             </form>
+        </div>
+    </div>
+
+    <div class="card">
+         <div class="card-header">
+            Trading Parameters
+         </div>
+         <div class="card-body">
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="trading_parameters.default_trade_amount">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="default_trade_amount">Default Trade Amount</label>
+                        <p class="info-text">Base currency amount (e.g., USDT)</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="number" class="form-control" id="default_trade_amount" name="value" value="{{ settings.trading_parameters.default_trade_amount if settings.trading_parameters and settings.trading_parameters.default_trade_amount else 600 }}">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="trading_parameters.max_trade_amount">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="max_trade_amount">Maximum Trade Amount</label>
+                        <p class="info-text">Safety limit per trade</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="number" class="form-control" id="max_trade_amount" name="value" value="{{ settings.trading_parameters.max_trade_amount if settings.trading_parameters and settings.trading_parameters.max_trade_amount else 1000 }}">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+         </div>
+    </div>
+
+     <div class="card">
+         <div class="card-header">
+            Stop Loss Settings
+         </div>
+         <div class="card-body">
+            <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="trading_parameters.stop_loss.percentage">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="stop_loss_percentage">Stop Loss (%)</label>
+                        <p class="info-text">Default stop loss percentage</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="number" class="form-control" id="stop_loss_percentage" name="value" value="{{ settings.trading_parameters.stop_loss.percentage if settings.trading_parameters and settings.trading_parameters.stop_loss and settings.trading_parameters.stop_loss.percentage else 3 }}" step="0.1">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="trading_parameters.stop_loss.max_percentage">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="max_stop_loss">Max Stop Loss (%)</label>
+                        <p class="info-text">Maximum allowable stop loss</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="number" class="form-control" id="max_stop_loss" name="value" value="{{ settings.trading_parameters.stop_loss.max_percentage if settings.trading_parameters and settings.trading_parameters.stop_loss and settings.trading_parameters.stop_loss.max_percentage else 10 }}" step="0.1">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="trading_parameters.stop_loss.long_term_trade_hrs">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="long_term_trade_hrs">Long-term Trade (hrs)</label>
+                        <p class="info-text">Threshold for different SL logic?</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="number" class="form-control" id="long_term_trade_hrs" name="value" value="{{ settings.trading_parameters.stop_loss.long_term_trade_hrs if settings.trading_parameters and settings.trading_parameters.stop_loss and settings.trading_parameters.stop_loss.long_term_trade_hrs else 72 }}">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+         </div>
+     </div>
+
+     <div class="card">
+         <div class="card-header">
+             Safety Measures
+         </div>
+         <div class="card-body">
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="safety.check_interval">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="safety_check_interval">Safety Check Interval (s)</label>
+                        <p class="info-text">Frequency of safety checks</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="number" class="form-control" id="safety_check_interval" name="value" value="{{ settings.safety.check_interval if settings.safety and settings.safety.check_interval else 60 }}">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+         </div>
+     </div>
+
+    <div class="card">
+        <div class="card-header">
+            Shutdown Behavior
+        </div>
+        <div class="card-body">
+            <form method="POST" action="/algobot-hub/update">
+                 <input type="hidden" name="path" value="shutdown.close_positions">
+                 <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="close_positions">Close Positions on Shutdown</label>
+                    </div>
+                    <div class="setting-control">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="close_positions" name="value" value="true" {% if settings.shutdown and settings.shutdown.close_positions %}checked{% endif %}>
+                            <label class="form-check-label" for="close_positions"></label>
+                        </div>
+                        <button type="submit" class="btn btn-primary ms-auto">Update</button>
+                    </div>
+                 </div>
+             </form>
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="shutdown.close_method">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="close_method">Shutdown Close Method</label>
+                    </div>
+                    <div class="setting-control">
+                       <select class="form-select" id="close_method" name="value">
+                            <option value="virtual" {% if settings.shutdown and settings.shutdown.close_method == 'virtual' %}selected{% endif %}>Virtual (Mark closed only)</option>
+                            <option value="market" {% if settings.shutdown and settings.shutdown.close_method == 'market' %}selected{% endif %}>Market (Execute orders)</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+     <div class="card">
+         <div class="card-header">
+             Logging Settings
+         </div>
+         <div class="card-body">
+             <form method="POST" action="/algobot-hub/update">
+                <input type="hidden" name="path" value="logging.level">
+                <div class="setting-row">
+                    <div class="setting-label">
+                        <label for="log_level">Log Level</label>
+                    </div>
+                    <div class="setting-control">
+                        <select class="form-select" id="log_level" name="value">
+                            <option value="DEBUG" {% if settings.logging and settings.logging.level == 'DEBUG' %}selected{% endif %}>Debug</option>
+                            <option value="INFO" {% if settings.logging and settings.logging.level == 'INFO' %}selected{% endif %}>Info</option>
+                            <option value="WARNING" {% if settings.logging and settings.logging.level == 'WARNING' %}selected{% endif %}>Warning</option>
+                            <option value="ERROR" {% if settings.logging and settings.logging.level == 'ERROR' %}selected{% endif %}>Error</option>
+                            <option value="CRITICAL" {% if settings.logging and settings.logging.level == 'CRITICAL' %}selected{% endif %}>Critical</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+         </div>
+     </div>
+
+</div>
+{% endblock %}

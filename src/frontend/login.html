@@ -1,0 +1,29 @@
+{% extends "base.html" %} {# Assuming use of a base template #}
+
+{% block title %}AlgoBot Login{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h1 class="text-center">AlgoBot Login</h1>
+
+    {% if message %}
+    <div class="flash-message flash-{{ message_type }}">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/algobot-hub/login">
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 mt-3">Login</button>
+    </form>
+</div>
+{% endblock %}

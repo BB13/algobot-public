@@ -1,0 +1,92 @@
+# user_config.yaml
+
+# Exchange adapter settings
+adapters:
+  # Default adapter to use when not specified
+  default: "binance_spot"
+
+  # Binance spot settings
+  binance_spot:
+    enabled: true  # <-- Change to true
+    testnet: true  # Set to true for testing without real funds
+    use_margin_for_longs: false # Set true to use MARGIN_BUY for LONG orders
+
+    # Spot Margin Settings (Replaces Futures settings)
+    default_leverage: 1      # Target leverage for borrowing calculations
+    max_leverage: 10         # Maximum leverage safeguard for borrowing
+    margin_type: "ISOLATED"  # Options: "CROSSED" (shared) or "ISOLATED" (per pair)
+    # Trade direction controls
+    directions:
+      allow_long: true   # Set to false to disable long trades
+      allow_short: false  # Set to false to disable short trades (via margin borrowing)
+
+# Trading parameters (replaces hardcoded values in config.py)
+trading_parameters:
+  # Default and maximum trade amounts
+  default_trade_amount: 500
+  max_trade_amount: 1000
+
+  # Take profit configurations
+  take_profits:
+    three_level: # For 3 take profit levels
+      1: 33  # Level 1: Exit 33% of position
+      2: 50  # Level 2: Exit 50% of remaining position
+      3: 100 # Level 3: Exit 100% of remaining position (close position)
+    four_level: # For 4 take profit levels
+      1: 25  # Level 1: Exit 25% of position
+      2: 33  # Level 2: Exit 33% of remaining position
+      3: 50  # Level 3: Exit 50% of remaining position
+      4: 100 # Level 4: Exit 100% of remaining position (close position)
+  # Stop loss settings
+  stop_loss:
+    percentage: 3          # Default stop loss percentage
+    max_percentage: 10     # Maximum allowable stop loss percentage
+    long_term_trade_hrs: 72 # Hours threshold for long-term trades
+  # Safety measures
+  safety:
+    check_interval: 60     # Interval in seconds for safety checks
+
+# Shutdown behavior settings
+shutdown:
+  close_positions: false   # Set to true to close all open positions on shutdown
+  close_method: "virtual"  # Options: "virtual" (mark closed without exchange order) or "market" (execute market orders)
+
+# Logging configuration
+logging:
+  # Global logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  level: "WARNING"
+  # Rotating file handler settings
+  rotation:
+    max_size_mb: 20      # Increased from 10 to 20 MB to reduce rotation frequency
+    backup_count: 3      # Reduced from 5 to 3 for general logs to keep fewer files
+    order_backup_count: 5  # Reduced from 10 to 5 to keep fewer backup files
+  # Paths can be customized if needed (without 'logs/' prefix as it's already included in the base path)
+  paths:
+    general: "app.log"
+    orders: "orders.log"
+
+# Chart presets for market monitoring
+chart_presets:
+  '1': # Preset ID (use strings for keys)
+    name: "Crypto Majors" # Optional name for description
+    assets:
+      - BINANCE:BTCUSDT
+      - BINANCE:ETHUSDT
+      - BINANCE:LINKUSDT
+      - BINANCE:SOLUSDT
+  '2':
+    name: "Stock Watchlist"
+    assets:
+      - NASDAQ:TSLA
+      - NASDAQ:AAPL
+      - NYSE:GME
+  '3':
+    name: "Mixed View"
+    assets:
+      - BINANCE:BTCUSDT
+      - BINANCE:ETHUSDT
+      - NASDAQ:TSLA
+      - FX:EURUSD
+risk_management: {}
+safety:
+  check_interval: 60

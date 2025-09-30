@@ -1,0 +1,12 @@
+uvicorn
+fastapi
+python-dotenv
+pyyaml
+ruamel.yaml
+python-telegram-bot
+playwright
+Pillow
+python-binance
+jinja2
+python-multipart
+pandas

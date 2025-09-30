@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}AlgoBot Trade Charts{% endblock %}
+
+{% block extra_head %}
+{# Include Chart.js CDN #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script> {# Date adapter #}
+{# Include Chart.js Zoom Plugin CDN #}
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script> {# Required dependency for zoom plugin gestures #}
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<style>
+    /* Optional: Add some spacing */
+    .filter-controls .col-md-3 {
+        padding-bottom: 1rem;
+    }
+    #chartContainer {
+        margin-top: 2rem;
+         background-color: var(--bs-tertiary-bg); /* Match other card backgrounds */
+         padding: 1.5rem;
+         border-radius: 0.25rem;
+    }
+    #loadingIndicator {
+        display: none; /* Hidden by default */
+        text-align: center;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="charts-container">
+    <h1 class="text-center mb-4">Trade Performance Charts</h1>
+
+    {# Filter Controls #}
+    <div class="card mb-4">
+        <div class="card-header">Filter Trades</div>
+        <div class="card-body">
+            <div class="row filter-controls g-3">
+                {# Strategy Dropdown #}
+                <div class="col-md-3">
+                    <label for="strategyFilter" class="form-label">Bot Strategy:</label>
+                    <select id="strategyFilter" class="form-select">
+                        <option value="all" selected>All Strategies</option>
+                        {% for strategy in unique_strategies %}
+                        <option value="{{ strategy }}">{{ strategy }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {# Settings Dropdown #}
+                <div class="col-md-3">
+                    <label for="settingsFilter" class="form-label">Bot Settings:</label>
+                    <select id="settingsFilter" class="form-select">
+                        <option value="all" selected>All Settings</option>
+                         {% for setting in unique_settings %}
+                        <option value="{{ setting }}">{{ setting }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {# Timeframe Dropdown #}
+                <div class="col-md-3">
+                    <label for="timeframeFilter" class="form-label">Timeframe:</label>
+                    <select id="timeframeFilter" class="form-select">
+                        <option value="all" selected>All Timeframes</option>
+                         {% for tf in unique_timeframes %}
+                        <option value="{{ tf }}">{{ tf }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {# Asset Dropdown #}
+                <div class="col-md-3">
+                    <label for="assetFilter" class="form-label">Asset:</label>
+                    <select id="assetFilter" class="form-select">
+                        <option value="all" selected>All Assets</option>
+                         {% for asset in unique_assets %}
+                        <option value="{{ asset }}">{{ asset }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Chart Area #}
+    <div id="chartContainer">
+        <canvas id="tradeChart"></canvas>
+        <div id="loadingIndicator">Loading chart data...</div>
+        <div id="noDataMessage" style="display: none; text-align: center; margin-top: 1rem;">No trade data found for the selected filters.</div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let tradeChart = null; // Global variable to hold the chart instance
+    const ctx = document.getElementById('tradeChart').getContext('2d');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const noDataMessage = document.getElementById('noDataMessage');
+
+    async function fetchAndUpdateChart() {
+        const strategy = document.getElementById('strategyFilter').value;
+        const settings = document.getElementById('settingsFilter').value;
+        const timeframe = document.getElementById('timeframeFilter').value;
+        const asset = document.getElementById('assetFilter').value;
+
+        // Construct the URL with query parameters
+        const url = new URL('/algobot-hub/chart-data', window.location.origin);
+        url.searchParams.append('bot_strategy', strategy);
+        url.searchParams.append('bot_settings', settings);
+        url.searchParams.append('timeframe', timeframe);
+        url.searchParams.append('asset', asset);
+
+        console.log("Fetching chart data from:", url.toString()); // Debug log
+        loadingIndicator.style.display = 'block'; // Show loading indicator
+        noDataMessage.style.display = 'none'; // Hide no data message
+        if (tradeChart) {
+             tradeChart.setDatasetVisibility(0, false); // Hide current data
+             tradeChart.update(); // Update chart to show it's empty/loading
+        }
+
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                // Attempt to parse error detail from response
+                let errorDetail = `HTTP error! Status: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    errorDetail = errorData.detail || errorDetail;
+                } catch (e) {
+                    // Ignore if response body isn't valid JSON
+                }
+                console.error('Error fetching chart data:', errorDetail);
+                throw new Error(errorDetail);
+            }
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                console.log("Data received:", result.data.length, "records"); // Debug log
+                if (result.data.length === 0) {
+                    noDataMessage.style.display = 'block'; // Show no data message
+                     // Clear existing chart data if it exists
+                     if (tradeChart) {
+                        tradeChart.data.labels = [];
+                        tradeChart.data.datasets[0].data = [];
+                        tradeChart.update();
+                    }
+                } else {
+                    noDataMessage.style.display = 'none';
+                    updateChart(result.data);
+                }
+            } else {
+                 console.error('API call failed or returned no data:', result.message || 'Unknown error');
+                 noDataMessage.style.display = 'block';
+                  // Clear existing chart data if it exists
+                 if (tradeChart) {
+                    tradeChart.data.labels = [];
+                    tradeChart.data.datasets[0].data = [];
+                    tradeChart.update();
+                }
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            noDataMessage.textContent = `Error loading data: ${error.message}`; // Show error message
+            noDataMessage.style.display = 'block';
+            // Clear existing chart data if it exists
+            if (tradeChart) {
+                tradeChart.data.labels = [];
+                tradeChart.data.datasets[0].data = [];
+                tradeChart.update();
+            }
+        } finally {
+             loadingIndicator.style.display = 'none'; // Hide loading indicator
+        }
+    }
+
+    function updateChart(data) {
+        // Prepare data for Chart.js (assuming scatter plot: x=timestamp, y=profit_percentage)
+        const chartData = data.map(item => ({
+            x: item.timestamp, // Already ISO string
+            y: item.profit_percentage // Already number
+        }));
+
+        const datasetLabel = `Profit % over Time`;
+
+        if (tradeChart) {
+            // Update existing chart
+            tradeChart.data.labels = chartData.map(d => d.x); // Update labels if needed, though time scale handles this
+            tradeChart.data.datasets[0].data = chartData;
+            tradeChart.data.datasets[0].label = datasetLabel;
+             tradeChart.setDatasetVisibility(0, true); // Make sure dataset is visible
+            tradeChart.update();
+        } else {
+            // Create new chart
+            tradeChart = new Chart(ctx, {
+                type: 'line', // Use line chart for time series
+                data: {
+                    // Labels can be omitted when using time scale with objects {x,y}
+                    datasets: [{
+                        label: datasetLabel,
+                        data: chartData,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1, // Slight curve
+                        pointRadius: 4, // Make points visible
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true, // Allow chart to resize vertically
+                    scales: {
+                        x: {
+                            type: 'time', // Use time scale
+                            time: {
+                                unit: 'day', // Adjust unit based on data density
+                                tooltipFormat: 'yyyy-MM-dd HH:mm:ss', // Format for tooltips
+                                displayFormats: {
+                                     // Define formats for different time units
+                                     millisecond: 'HH:mm:ss.SSS',
+                                     second: 'HH:mm:ss',
+                                     minute: 'HH:mm',
+                                     hour: 'HH:mm',
+                                     day: 'MMM d',
+                                     week: 'MMM d',
+                                     month: 'MMM yyyy',
+                                     quarter: 'MMM yyyy',
+                                     year: 'yyyy'
+                                 }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Timestamp'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Profit Percentage (%)'
+                            },
+                             ticks: {
+                                 // Include a '%' sign in the ticks
+                                 callback: function(value, index, values) {
+                                     return value + '%';
+                                 }
+                             }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(2) + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true
+                        },
+                        zoom: { // Zoom Plugin Configuration
+                            zoom: {
+                                wheel: {
+                                    enabled: true, // Enable zooming with mouse wheel
+                                },
+                                pinch: {
+                                    enabled: true // Enable zooming with pinch gesture (touch devices)
+                                },
+                                mode: 'xy', // Allow zooming on both x and y axes
+                                drag: {
+                                     enabled: true, // Enable drag-to-zoom
+                                     borderColor: 'rgba(75, 192, 192, 0.3)',
+                                     backgroundColor: 'rgba(75, 192, 192, 0.1)'
+                                 }
+                            },
+                            pan: {
+                                enabled: true, // Enable panning
+                                mode: 'xy', // Allow panning on both x and y axes
+                                threshold: 10 // Minimum distance before panning starts
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // Add event listeners to filters
+    document.getElementById('strategyFilter').addEventListener('change', fetchAndUpdateChart);
+    document.getElementById('settingsFilter').addEventListener('change', fetchAndUpdateChart);
+    document.getElementById('timeframeFilter').addEventListener('change', fetchAndUpdateChart);
+    document.getElementById('assetFilter').addEventListener('change', fetchAndUpdateChart);
+
+    // Initial chart load on page ready
+    document.addEventListener('DOMContentLoaded', fetchAndUpdateChart);
+
+</script>
+{% endblock %} 

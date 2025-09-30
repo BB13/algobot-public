@@ -1,0 +1,169 @@
+/* Apply dark theme variables (Bootstrap does most of the work with data-bs-theme="dark") */
+body {
+    /* Example: Slightly different background if needed */
+    /* background-color: #1a1a1a; */
+}
+
+/* --- Square Buttons --- */
+.btn {
+    border-radius: 0 !important; /* Override Bootstrap's default */
+}
+
+/* --- Settings Page Enhancements --- */
+.settings-container {
+    max-width: 700px; /* Limit width for better readability */
+    margin: 0 auto; /* Center the container */
+}
+
+.settings-container .card {
+    margin-bottom: 1.5rem; /* Add space between setting cards */
+     background-color: var(--bs-tertiary-bg); /* Slightly different bg for cards */
+}
+
+.setting-row {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    align-items: center; /* Align items vertically */
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+.setting-row:last-child {
+    border-bottom: none;
+}
+
+.setting-label {
+    flex: 1 1 55%; /* Increased basis */
+    margin-right: 1rem;
+    margin-bottom: 0.5rem; /* Space below label on wrap */
+}
+.setting-label label {
+    font-weight: 600;
+}
+.setting-label .info-text {
+    font-size: 0.85em;
+    color: var(--bs-secondary-color);
+}
+
+.setting-control {
+    flex: 1 1 40%; /* Decreased basis */
+    display: flex;
+    align-items: center; /* Align input/select and button */
+}
+.setting-control .form-control,
+.setting-control .form-select,
+.setting-control .form-check {
+    flex-grow: 1; /* Input takes available space */
+    margin-right: 0.5rem; /* Space between input and button */
+}
+.setting-control .form-check {
+     margin-right: 0; /* No margin needed next to button for checkbox */
+     margin-left: 10px; /* Give checkbox some space from label side */
+}
+.setting-control .form-check-input {
+    margin-right: auto; /* Push button to the right */
+}
+.setting-control button {
+    min-width: 90px; /* Ensure buttons have a consistent minimum width */
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+/* --- Webhook Generator Enhancements --- */
+.webhook-container .card {
+     background-color: var(--bs-tertiary-bg);
+     padding: 1.5rem;
+}
+.webhook-container h1 {
+     color: var(--bs-primary); /* Use theme primary color */
+     margin-bottom: 1.5rem;
+}
+
+.output-section .output-display {
+    background-color: var(--bs-dark); /* Darker background for output */
+    border: 1px solid var(--bs-border-color);
+    padding: 0.5rem 0.75rem; /* Adjusted padding */
+    margin-top: 0; /* Removed margin */
+    margin-bottom: 0; /* Removed margin */
+    word-break: break-all;
+    font-family: monospace;
+    min-height: calc(1.5em + 0.5rem + 2px); /* Match button height */
+    display: flex; /* Use flex to vertically center potentially wrapped text */
+    align-items: center;
+    color: var(--bs-light); /* Lighter text for contrast */
+}
+.output-section .btn-copy {
+    /* margin-bottom: 1rem; */ /* Removed margin, handled by mb-3 on parent */
+}
+.output-section .btn-copy.copied {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+    color: white;
+}
+
+.side-panel .list-group-item {
+    background-color: transparent; /* Make list items blend */
+    border: none;
+    padding: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.side-panel .btn-copy-command {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8em;
+}
+.side-panel .btn-copy-command.copied {
+     background-color: var(--bs-success);
+     border-color: var(--bs-success);
+     color: white;
+}
+
+/* --- Login Page Specific --- */
+.login-container {
+    max-width: 450px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--bs-tertiary-bg);
+    border-radius: 0.25rem; /* Standard Bootstrap radius */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+.login-container h1 {
+    color: var(--bs-primary);
+    border-bottom: 2px solid var(--bs-primary);
+    padding-bottom: 10px;
+    margin-bottom: 1.5rem;
+}
+
+/* Flash Messages */
+.flash-message {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 0; /* Match square style */
+}
+.flash-error {
+    color: var(--bs-danger-text-emphasis);
+    background-color: var(--bs-danger-bg-subtle);
+    border-color: var(--bs-danger-border-subtle);
+}
+.flash-success {
+    color: var(--bs-success-text-emphasis);
+    background-color: var(--bs-success-bg-subtle);
+    border-color: var(--bs-success-border-subtle);
+}
+
+/* Adjust checkbox alignment in settings */
+.form-check .form-check-input {
+    float: none; /* Override default float */
+    margin-left: 0;
+    margin-right: 0.5em;
+}
+.form-check {
+    display: flex; /* Use flex for alignment */
+    align-items: center;
+    min-height: calc(1.5em + 0.75rem + 2px); /* Match input height */
+    padding-left: 0; /* Reset padding */
+}
+.form-check .form-check-label {
+    flex-grow: 1;
+}
